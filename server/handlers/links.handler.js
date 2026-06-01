@@ -625,34 +625,145 @@ async function stats(req, res) {
     throw new CustomError("Link could not be found.");
   }
 
-  const stats = await query.visit.find({ link_id: link.id }, link.visit_count);
+  const from = req.query.from ? new Date(req.query.from) : null;
+  const to = req.query.to ? new Date(req.query.to) : null;
+  const dateOpts = (from || to) ? { from, to } : {};
 
-  if (!stats) {
+  const linkStats = await query.visit.find({ link_id: link.id }, link.visit_count, dateOpts);
+
+  if (!linkStats) {
     throw new CustomError("Could not get the short link stats. Try again later.");
   }
 
   if (req.isHTML) {
     res.render("partials/stats", {
       link: utils.sanitize.link_html(link),
-      stats,
+      stats: linkStats,
       map,
     });
     return;
   }
 
   return res.status(200).send({
-    ...stats,
+    ...linkStats,
     ...utils.sanitize.link(link)
   });
 };
 
+async function bulkCreate(req, res) {
+  const items = req.body.links;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new CustomError("'links' must be a non-empty array.", 400);
+  }
+
+  if (items.length > 50) {
+    throw new CustomError("Maximum of 50 links per request.", 400);
+  }
+
+  const created = [];
+  const errors = [];
+
+  for (const item of items) {
+    try {
+      const target = item.target ? utils.addProtocol(String(item.target).trim()) : null;
+
+      if (!target || !utils.urlRegex.test(target)) {
+        errors.push({ target: item.target, error: "URL is not valid." });
+        continue;
+      }
+
+      const address = item.customurl || (await utils.generateId(query, null));
+      const existing = item.customurl ? await query.link.find({ address, domain_id: null }) : null;
+
+      if (existing) {
+        errors.push({ target, error: "Custom URL is already in use." });
+        continue;
+      }
+
+      const link = await query.link.create({
+        address,
+        target,
+        description: item.description || null,
+        expire_in: null,
+        password: null,
+        domain_id: null,
+        user_id: req.user.id,
+      });
+
+      created.push(utils.sanitize.link(link));
+    } catch (err) {
+      errors.push({ target: item.target, error: err.message || "Failed to create link." });
+    }
+  }
+
+  return res.status(201).send({
+    created: created.length,
+    errors: errors.length,
+    data: created,
+    error_details: errors.length > 0 ? errors : undefined,
+  });
+};
+
+async function globalStats(req, res) {
+  const stats = await query.link.globalStats(req.user.id);
+
+  return res.status(200).send({
+    total_links: stats.total_links,
+    total_clicks: stats.total_clicks,
+    top_links: stats.top_links.map(l => ({
+      id: l.uuid,
+      address: l.address,
+      target: l.target,
+      description: l.description,
+      visit_count: l.visit_count,
+      link: utils.getShortURL(l.address, l.domain).url,
+    })),
+  });
+};
+
+async function exportLinks(req, res) {
+  const format = req.query.format === "json" ? "json" : "csv";
+  const links = await query.link.getAll({ user_id: req.user.id });
+
+  if (format === "json") {
+    res.setHeader("Content-Disposition", "attachment; filename=\"kutt-links.json\"");
+    res.setHeader("Content-Type", "application/json");
+    return res.send(links.map(utils.sanitize.link));
+  }
+
+  const rows = [
+    ["id", "address", "target", "description", "link", "visit_count", "created_at", "expire_in"].join(","),
+    ...links.map(l => {
+      const s = utils.sanitize.link(l);
+      return [
+        s.id,
+        s.address,
+        `"${(s.target || "").replace(/"/g, '""')}"`,
+        `"${(s.description || "").replace(/"/g, '""')}"`,
+        s.link,
+        l.visit_count,
+        new Date(utils.parseDatetime(l.created_at)).toISOString(),
+        l.expire_in ? new Date(utils.parseDatetime(l.expire_in)).toISOString() : "",
+      ].join(",");
+    })
+  ].join("\n");
+
+  res.setHeader("Content-Disposition", "attachment; filename=\"kutt-links.csv\"");
+  res.setHeader("Content-Type", "text/csv");
+  return res.send(rows);
+};
+
 module.exports = {
   ban,
+  bulkCreate,
   create,
   edit,
   editAdmin,
+  exportLinks,
   get,
   getAdmin,
+  globalStats,
   remove,
   report,
   stats,

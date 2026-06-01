@@ -20,6 +20,20 @@ router.get(
   asyncHandler(link.get)
 );
 
+router.post(
+  "/bulk",
+  asyncHandler(auth.apikey),
+  asyncHandler(auth.jwt),
+  asyncHandler(link.bulkCreate)
+);
+
+router.get(
+  "/export",
+  asyncHandler(auth.apikey),
+  asyncHandler(auth.jwt),
+  asyncHandler(link.exportLinks)
+);
+
 router.get(
   "/admin",
   locals.viewTemplate("partials/admin/links/table"),

@@ -295,13 +295,55 @@ function incrementVisit(match) {
   return knex("links").where(match).increment("visit_count", 1);
 }
 
+async function getAll(match) {
+  return knex("links")
+    .select(...selectable)
+    .where(normalizeMatch(match))
+    .leftJoin("domains", "links.domain_id", "domains.id")
+    .orderBy("links.id", "desc");
+}
+
+async function globalStats(userId) {
+  const totals = await knex("links")
+    .where("links.user_id", userId)
+    .where("links.banned", false)
+    .select(
+      knex.raw("COUNT(*) as total_links"),
+      knex.raw("COALESCE(SUM(visit_count), 0) as total_clicks")
+    )
+    .first();
+
+  const topLinks = await knex("links")
+    .select(
+      "links.uuid",
+      "links.address",
+      "links.target",
+      "links.description",
+      "links.visit_count",
+      "domains.address as domain"
+    )
+    .leftJoin("domains", "links.domain_id", "domains.id")
+    .where("links.user_id", userId)
+    .where("links.banned", false)
+    .orderBy("links.visit_count", "desc")
+    .limit(5);
+
+  return {
+    total_links: parseInt(totals?.total_links) || 0,
+    total_clicks: parseInt(totals?.total_clicks) || 0,
+    top_links: topLinks,
+  };
+}
+
 module.exports = {
   normalizeMatch,
   batchRemove,
   create,
   find,
   get,
+  getAll,
   getAdmin,
+  globalStats,
   incrementVisit,
   remove,
   total,

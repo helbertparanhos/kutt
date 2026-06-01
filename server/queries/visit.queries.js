@@ -68,8 +68,8 @@ async function add(params) {
   });
 }
 
-async function find(match, total) {
-  if (match.link_id && env.REDIS_ENABLED) {
+async function find(match, total, opts = {}) {
+  if (match.link_id && env.REDIS_ENABLED && !opts.from && !opts.to) {
     const key = redis.key.stats(match.link_id);
     const cached = await redis.client.get(key);
     if (cached) return JSON.parse(cached);
@@ -98,7 +98,10 @@ async function find(match, total) {
     }
   };
 
-  const visitsStream = knex("visits").where(match).stream();
+  const visitsQuery = knex("visits").where(match);
+  if (opts.from) visitsQuery.where("created_at", ">=", opts.from);
+  if (opts.to) visitsQuery.where("created_at", "<=", opts.to);
+  const visitsStream = visitsQuery.stream();
   const now = new Date();
 
   const periods = utils.getStatsPeriods(now);
@@ -182,7 +185,7 @@ async function find(match, total) {
     updatedAt: new Date()
   };
 
-  if (match.link_id && env.REDIS_ENABLED) {
+  if (match.link_id && env.REDIS_ENABLED && !opts.from && !opts.to) {
     const key = redis.key.stats(match.link_id);
     redis.client.set(key, JSON.stringify(response), "EX", 60);
   }
