@@ -695,8 +695,7 @@ module.exports = {
             }
           }
         }
-      }
-    },
+      },
       BulkCreateBody: {
         type: "object",
         required: ["links"],
