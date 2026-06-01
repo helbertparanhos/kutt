@@ -9,6 +9,7 @@ const health = require("./health.routes");
 const link = require("./link.routes");
 const user = require("./user.routes");
 const auth = require("./auth.routes");
+const docs = require("./docs.routes");
 const linkHandler = require("./../handlers/links.handler");
 const authHandler = require("./../handlers/auth.handler");
 
@@ -17,6 +18,7 @@ renderRouter.use(renders);
 
 const apiRouter = Router();
 apiRouter.use(locals.noLayout);
+apiRouter.use("/docs", docs);
 apiRouter.use("/domains", domains);
 apiRouter.use("/health", health);
 apiRouter.use("/links", link);

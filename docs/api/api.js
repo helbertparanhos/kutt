@@ -1,31 +1,28 @@
 
 const p = require("../../package.json");
+const env = require("../../server/env");
+
+const protocol = env.isDev ? "http://" : "https://";
 
 module.exports = {
   openapi: "3.0.0",
   info: {
-    title: "Kutt.to",
-    description: "API reference for [http://kutt.to](http://kutt.to).\n",
+    title: env.SITE_NAME + " API",
+    description: `API reference for ${protocol}${env.DEFAULT_DOMAIN}\n\n**Authentication:** use the \`X-Api-Key\` header with your API key (found in Settings).\n`,
     version: p.version
   },
   servers: [
     {
-      url: "https://kutt.to/api/v2"
+      url: `${protocol}${env.DEFAULT_DOMAIN}/api/v2`,
+      description: "Production"
     }
   ],
   tags: [
-    {
-      name: "health"
-    },
-    {
-      name: "links"
-    },
-    {
-      name: "domains"
-    },
-    {
-      name: "users"
-    }
+    { name: "health" },
+    { name: "links" },
+    { name: "stats" },
+    { name: "domains" },
+    { name: "users" }
   ],
   paths: {
     "/health": {
@@ -214,10 +211,67 @@ module.exports = {
         ]
       }
     },
+    "/links/bulk": {
+      post: {
+        tags: ["links"],
+        description: "Create up to 50 links in a single request",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BulkCreateBody" },
+              example: {
+                links: [
+                  { target: "https://example.com", description: "Example" },
+                  { target: "https://github.com", customurl: "gh" }
+                ]
+              }
+            }
+          }
+        },
+        responses: {
+          "201": {
+            description: "Bulk create result",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/BulkCreateResponse" }
+              }
+            }
+          }
+        },
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
+    "/links/export": {
+      get: {
+        tags: ["links"],
+        description: "Export all links as CSV or JSON",
+        parameters: [
+          {
+            name: "format",
+            in: "query",
+            description: "Export format",
+            required: false,
+            schema: { type: "string", enum: ["csv", "json"], default: "csv" }
+          }
+        ],
+        responses: {
+          "200": {
+            description: "File download (CSV or JSON)",
+            content: {
+              "text/csv": { schema: { type: "string" } },
+              "application/json": {
+                schema: { type: "array", items: { $ref: "#/components/schemas/Link" } }
+              }
+            }
+          }
+        },
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
     "/links/{id}/stats": {
       get: {
         tags: ["links"],
-        description: "Get link stats",
+        description: "Get stats for a specific link. Use `from` and `to` to filter by date range.",
         parameters: [
           {
             name: "id",
@@ -225,10 +279,21 @@ module.exports = {
             required: true,
             style: "simple",
             explode: false,
-            schema: {
-              type: "string",
-              format: "uuid"
-            }
+            schema: { type: "string", format: "uuid" }
+          },
+          {
+            name: "from",
+            in: "query",
+            description: "Start date (ISO 8601)",
+            required: false,
+            schema: { type: "string", format: "date", example: "2024-01-01" }
+          },
+          {
+            name: "to",
+            in: "query",
+            description: "End date (ISO 8601)",
+            required: false,
+            schema: { type: "string", format: "date", example: "2024-12-31" }
           }
         ],
         responses: {
@@ -236,18 +301,29 @@ module.exports = {
             description: "Link stats",
             content: {
               "application/json": {
-                schema: {
-                  $ref: "#/components/schemas/Stats"
-                }
+                schema: { $ref: "#/components/schemas/Stats" }
               }
             }
           }
         },
-        security: [
-          {
-            APIKeyAuth: []
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
+    "/stats": {
+      get: {
+        tags: ["stats"],
+        description: "Get global stats for the authenticated user: total links, total clicks, and top 5 links.",
+        responses: {
+          "200": {
+            description: "Global stats",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/GlobalStats" }
+              }
+            }
           }
-        ]
+        },
+        security: [{ APIKeyAuth: [] }]
       }
     },
     "/domains": {
@@ -621,10 +697,69 @@ module.exports = {
         }
       }
     },
+      BulkCreateBody: {
+        type: "object",
+        required: ["links"],
+        properties: {
+          links: {
+            type: "array",
+            maxItems: 50,
+            items: {
+              type: "object",
+              required: ["target"],
+              properties: {
+                target: { type: "string" },
+                description: { type: "string" },
+                customurl: { type: "string" }
+              }
+            }
+          }
+        }
+      },
+      BulkCreateResponse: {
+        type: "object",
+        properties: {
+          created: { type: "number" },
+          errors: { type: "number" },
+          data: { type: "array", items: { $ref: "#/components/schemas/Link" } },
+          error_details: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                target: { type: "string" },
+                error: { type: "string" }
+              }
+            }
+          }
+        }
+      },
+      GlobalStats: {
+        type: "object",
+        properties: {
+          total_links: { type: "number" },
+          total_clicks: { type: "number" },
+          top_links: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                address: { type: "string" },
+                target: { type: "string" },
+                description: { type: "string" },
+                visit_count: { type: "number" },
+                link: { type: "string" }
+              }
+            }
+          }
+        }
+      }
+    },
     securitySchemes: {
       APIKeyAuth: {
         type: "apiKey",
-        name: "X-API-KEY",
+        name: "X-Api-Key",
         in: "header"
       }
     }
