@@ -59,6 +59,13 @@ router.get(
 );
 
 router.get(
+  "/dashboard",
+  asyncHandler(auth.jwtPage),
+  asyncHandler(locals.user),
+  asyncHandler(renders.dashboard)
+);
+
+router.get(
   "/admin",
   asyncHandler(auth.jwtPage),
   asyncHandler(auth.admin),

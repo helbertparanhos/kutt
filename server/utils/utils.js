@@ -194,7 +194,8 @@ const preservedURLs = [
   "css",
   "fonts",
   "libs",
-  "pricing"
+  "pricing",
+  "dashboard"
 ];
 
 function parseBooleanQuery(query) {

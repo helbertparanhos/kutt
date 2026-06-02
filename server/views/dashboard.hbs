@@ -1,0 +1,108 @@
+{{> header}}
+<section id="dashboard" class="section-container">
+
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <div class="dashboard-actions">
+      <a class="button" href="/api/v2/links/export?format=csv" title="Export all links as CSV">
+        {{> icons/write}} Export CSV
+      </a>
+      <a class="button secondary" href="/api/docs" target="_blank" title="API Docs">
+        API Docs
+      </a>
+    </div>
+  </div>
+
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <span class="stat-value">{{total_links}}</span>
+      <span class="stat-label">Total Links</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{total_clicks}}</span>
+      <span class="stat-label">Total Clicks</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{top_links.length}}</span>
+      <span class="stat-label">Top Links Tracked</span>
+    </div>
+  </div>
+
+  {{#if top_links}}
+  <div class="dashboard-section">
+    <h2>Top 5 Links</h2>
+    <div class="dashboard-chart-wrapper">
+      <canvas id="topLinksChart" height="80"></canvas>
+    </div>
+    <table class="dashboard-table">
+      <thead>
+        <tr>
+          <th>Slug</th>
+          <th>Destination</th>
+          <th>Clicks</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each top_links}}
+        <tr>
+          <td><strong>{{address}}</strong></td>
+          <td class="dashboard-target">{{target}}</td>
+          <td><strong>{{visit_count}}</strong></td>
+          <td>
+            <a class="button small" href="/stats?id={{id}}" title="Ver estatísticas">
+              {{> icons/chart}}
+            </a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{else}}
+  <div class="dashboard-empty">
+    <p>No links yet. <a href="/">Create your first link</a>.</p>
+  </div>
+  {{/if}}
+
+</section>
+{{> footer}}
+
+{{#extend "scripts"}}
+<script src="/libs/chart.min.js"></script>
+<script>
+(function () {
+  const data = {{{top_links_json}}};
+  if (!data || !data.length) return;
+  const ctx = document.getElementById("topLinksChart");
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [{
+        label: "Clicks",
+        data: data.map(d => d.value),
+        backgroundColor: [
+          "hsla(207,90%,54%,0.7)",
+          "hsla(262,47%,55%,0.7)",
+          "hsla(144,50%,50%,0.7)",
+          "hsla(35,90%,54%,0.7)",
+          "hsla(0,80%,55%,0.7)",
+        ],
+        borderRadius: 6,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: "hsla(200,20%,85%,0.4)" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}());
+</script>
+{{/extend}}

@@ -59,6 +59,26 @@ function settings(req, res) {
   });
 }
 
+async function dashboard(req, res) {
+  const stats = await query.link.globalStats(req.user.id);
+  res.render("dashboard", {
+    title: "Dashboard",
+    total_links: stats.total_links.toLocaleString("en-US"),
+    total_clicks: stats.total_clicks.toLocaleString("en-US"),
+    top_links: stats.top_links.map(l => ({
+      ...l,
+      link: utils.getShortURL(l.address, l.domain).url,
+      visit_count: l.visit_count.toLocaleString("en-US"),
+    })),
+    top_links_json: JSON.stringify(
+      stats.top_links.map(l => ({
+        label: l.address,
+        value: l.visit_count,
+      }))
+    ),
+  });
+}
+
 function admin(req, res) {
   res.render("admin", {
     title: "Admin"
@@ -308,6 +328,7 @@ module.exports = {
   addDomainAdmin,
   addDomainForm,
   admin,
+  dashboard,
   banned,
   confirmDomainBan,
   confirmDomainDelete,
