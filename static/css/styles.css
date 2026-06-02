@@ -1777,6 +1777,7 @@ input.search.admin {
 .dash-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 .dash-table th {
   padding: 9px 14px;
@@ -1786,6 +1787,8 @@ input.search.admin {
   letter-spacing: 0.05em;
   color: var(--secondary-text-color);
   border-bottom: 1px solid var(--table-head-tr-border-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .dash-table td {
@@ -1793,7 +1796,6 @@ input.search.admin {
   border-bottom: 1px solid var(--table-tr-border-color);
   font-size: 0.9rem;
   vertical-align: middle;
-  max-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
