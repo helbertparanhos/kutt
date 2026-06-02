@@ -1703,14 +1703,14 @@ input.search.admin {
 /* DASHBOARD */
 
 .dashboard-page {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 32px 48px;
+  width: min(1200px, 96vw);
+  align-self: center;
+  padding: 32px 24px 48px;
   display: flex;
   flex-direction: column;
   gap: 28px;
   flex: 1 1 auto;
+  box-sizing: border-box;
 }
 
 .dash-topbar {
@@ -1777,9 +1777,10 @@ input.search.admin {
 .dash-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 .dash-table th {
-  padding: 9px 16px;
+  padding: 9px 14px;
   text-align: left;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -1787,19 +1788,42 @@ input.search.admin {
   color: var(--secondary-text-color);
   border-bottom: 1px solid var(--table-head-tr-border-color);
   white-space: nowrap;
+  overflow: hidden;
 }
 .dash-table td {
-  padding: 11px 16px;
+  padding: 11px 14px;
   border-bottom: 1px solid var(--table-tr-border-color);
   font-size: 0.9rem;
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .dash-table tr:last-child td { border-bottom: none; }
 .dash-table tr:hover td { background: var(--table-tr-hover-bg-color); }
 
-.dash-rank { color: var(--secondary-text-color); font-size: 0.85rem; width: 28px; }
+/* Top links table column widths */
+.dash-card-wide .dash-table th:nth-child(1),
+.dash-card-wide .dash-table td:nth-child(1) { width: 36px; }
+.dash-card-wide .dash-table th:nth-child(2),
+.dash-card-wide .dash-table td:nth-child(2) { width: 110px; }
+.dash-card-wide .dash-table th:nth-child(3),
+.dash-card-wide .dash-table td:nth-child(3) { width: auto; }
+.dash-card-wide .dash-table th:nth-child(4),
+.dash-card-wide .dash-table td:nth-child(4) { width: 80px; }
+.dash-card-wide .dash-table th:nth-child(5),
+.dash-card-wide .dash-table td:nth-child(5) { width: 44px; }
+
+/* Recently created column widths */
+.dash-card:not(.dash-card-wide) .dash-table th:nth-child(1),
+.dash-card:not(.dash-card-wide) .dash-table td:nth-child(1) { width: auto; }
+.dash-card:not(.dash-card-wide) .dash-table th:nth-child(2),
+.dash-card:not(.dash-card-wide) .dash-table td:nth-child(2) { width: 60px; text-align: right; }
+.dash-card:not(.dash-card-wide) .dash-table th:nth-child(3),
+.dash-card:not(.dash-card-wide) .dash-table td:nth-child(3) { width: 40px; }
+
+.dash-rank { color: var(--secondary-text-color); font-size: 0.85rem; }
 .dash-target {
-  max-width: 380px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
