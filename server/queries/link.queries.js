@@ -304,6 +304,9 @@ async function getAll(match) {
 }
 
 async function globalStats(userId) {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
   const totals = await knex("links")
     .where("links.user_id", userId)
     .where("links.banned", false)
@@ -313,6 +316,13 @@ async function globalStats(userId) {
     )
     .first();
 
+  const recentLinks = await knex("links")
+    .where("links.user_id", userId)
+    .where("links.banned", false)
+    .where("links.created_at", ">=", thirtyDaysAgo)
+    .count("* as count")
+    .first();
+
   const topLinks = await knex("links")
     .select(
       "links.uuid",
@@ -320,18 +330,36 @@ async function globalStats(userId) {
       "links.target",
       "links.description",
       "links.visit_count",
+      "links.created_at",
       "domains.address as domain"
     )
     .leftJoin("domains", "links.domain_id", "domains.id")
     .where("links.user_id", userId)
     .where("links.banned", false)
     .orderBy("links.visit_count", "desc")
+    .limit(10);
+
+  const recentlyCreated = await knex("links")
+    .select(
+      "links.uuid",
+      "links.address",
+      "links.target",
+      "links.visit_count",
+      "links.created_at",
+      "domains.address as domain"
+    )
+    .leftJoin("domains", "links.domain_id", "domains.id")
+    .where("links.user_id", userId)
+    .where("links.banned", false)
+    .orderBy("links.created_at", "desc")
     .limit(5);
 
   return {
     total_links: parseInt(totals?.total_links) || 0,
     total_clicks: parseInt(totals?.total_clicks) || 0,
+    links_last_30_days: parseInt(recentLinks?.count) || 0,
     top_links: topLinks,
+    recently_created: recentlyCreated,
   };
 }
 

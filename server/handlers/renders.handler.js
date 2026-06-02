@@ -61,17 +61,29 @@ function settings(req, res) {
 
 async function dashboard(req, res) {
   const stats = await query.link.globalStats(req.user.id);
+  const avg_clicks = stats.total_links > 0
+    ? Math.round(stats.total_clicks / stats.total_links).toLocaleString("en-US")
+    : "0";
+
   res.render("dashboard", {
     title: "Dashboard",
     total_links: stats.total_links.toLocaleString("en-US"),
     total_clicks: stats.total_clicks.toLocaleString("en-US"),
+    links_last_30_days: stats.links_last_30_days.toLocaleString("en-US"),
+    avg_clicks,
     top_links: stats.top_links.map(l => ({
       ...l,
       link: utils.getShortURL(l.address, l.domain).url,
       visit_count: l.visit_count.toLocaleString("en-US"),
     })),
+    recently_created: stats.recently_created.map(l => ({
+      ...l,
+      link: utils.getShortURL(l.address, l.domain).url,
+      visit_count: l.visit_count.toLocaleString("en-US"),
+      relative_created_at: utils.getTimeAgo ? utils.getTimeAgo(l.created_at) : l.created_at,
+    })),
     top_links_json: JSON.stringify(
-      stats.top_links.map(l => ({
+      stats.top_links.slice(0, 8).map(l => ({
         label: l.address,
         value: l.visit_count,
       }))

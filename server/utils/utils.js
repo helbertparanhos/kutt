@@ -358,6 +358,10 @@ function registerHandlebarsHelpers() {
     return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
   });
 
+  hbs.registerHelper("addOne", function(value) {
+    return parseInt(value) + 1;
+  });
+
   hbs.registerHelper("json", function(context) {
     return JSON.stringify(context);
   });
