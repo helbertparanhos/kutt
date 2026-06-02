@@ -1777,7 +1777,6 @@ input.search.admin {
 .dash-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 .dash-table th {
   padding: 9px 14px;
@@ -1788,13 +1787,13 @@ input.search.admin {
   color: var(--secondary-text-color);
   border-bottom: 1px solid var(--table-head-tr-border-color);
   white-space: nowrap;
-  overflow: hidden;
 }
 .dash-table td {
   padding: 11px 14px;
   border-bottom: 1px solid var(--table-tr-border-color);
   font-size: 0.9rem;
   vertical-align: middle;
+  max-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1802,31 +1801,8 @@ input.search.admin {
 .dash-table tr:last-child td { border-bottom: none; }
 .dash-table tr:hover td { background: var(--table-tr-hover-bg-color); }
 
-/* Top links table column widths */
-.dash-card-wide .dash-table th:nth-child(1),
-.dash-card-wide .dash-table td:nth-child(1) { width: 36px; }
-.dash-card-wide .dash-table th:nth-child(2),
-.dash-card-wide .dash-table td:nth-child(2) { width: 110px; }
-.dash-card-wide .dash-table th:nth-child(3),
-.dash-card-wide .dash-table td:nth-child(3) { width: auto; }
-.dash-card-wide .dash-table th:nth-child(4),
-.dash-card-wide .dash-table td:nth-child(4) { width: 80px; }
-.dash-card-wide .dash-table th:nth-child(5),
-.dash-card-wide .dash-table td:nth-child(5) { width: 44px; }
-
-/* Recently created column widths */
-.dash-card:not(.dash-card-wide) .dash-table th:nth-child(1),
-.dash-card:not(.dash-card-wide) .dash-table td:nth-child(1) { width: auto; }
-.dash-card:not(.dash-card-wide) .dash-table th:nth-child(2),
-.dash-card:not(.dash-card-wide) .dash-table td:nth-child(2) { width: 60px; text-align: right; }
-.dash-card:not(.dash-card-wide) .dash-table th:nth-child(3),
-.dash-card:not(.dash-card-wide) .dash-table td:nth-child(3) { width: 40px; }
-
 .dash-rank { color: var(--secondary-text-color); font-size: 0.85rem; }
 .dash-target {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   color: var(--secondary-text-color);
   font-size: 0.78rem;
 }
