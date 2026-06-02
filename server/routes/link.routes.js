@@ -90,6 +90,13 @@ router.delete(
   asyncHandler(link.remove)
 );
 
+router.get(
+  "/:id",
+  asyncHandler(auth.apikey),
+  asyncHandler(auth.jwt),
+  asyncHandler(link.getOne)
+);
+
 router.post(
   "/admin/ban/:id",
   locals.viewTemplate("partials/links/dialog/ban"),

@@ -21,6 +21,7 @@ module.exports = {
     { name: "health" },
     { name: "links" },
     { name: "stats" },
+    { name: "utm-presets" },
     { name: "domains" },
     { name: "users" }
   ],
@@ -323,6 +324,84 @@ module.exports = {
             }
           }
         },
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
+    "/links/{id}": {
+      get: {
+        tags: ["links"],
+        description: "Get a single link by its UUID",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+        ],
+        responses: {
+          "200": { description: "Link", content: { "application/json": { schema: { $ref: "#/components/schemas/Link" } } } },
+          "404": { description: "Link not found" }
+        },
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
+    "/utm-presets": {
+      get: {
+        tags: ["utm-presets"],
+        description: "List saved UTM presets and campaign history for the authenticated user",
+        responses: {
+          "200": {
+            description: "Presets and campaign history",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    presets: { type: "array", items: { $ref: "#/components/schemas/UtmPreset" } },
+                    campaign_history: { type: "array", items: { type: "string" } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        security: [{ APIKeyAuth: [] }]
+      },
+      post: {
+        tags: ["utm-presets"],
+        description: "Create a new UTM preset",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/UtmPresetBody" },
+              example: { name: "Instagram Bio", utm_source: "instagram", utm_medium: "social", utm_content: "bio" }
+            }
+          }
+        },
+        responses: {
+          "201": { description: "Created preset", content: { "application/json": { schema: { $ref: "#/components/schemas/UtmPreset" } } } }
+        },
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
+    "/utm-presets/campaigns": {
+      post: {
+        tags: ["utm-presets"],
+        description: "Save a campaign name to the history (max 20 entries per user)",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { type: "object", required: ["campaign"], properties: { campaign: { type: "string" } } },
+              example: { campaign: "black-friday-2026" }
+            }
+          }
+        },
+        responses: { "200": { description: "Saved", content: { "application/json": { schema: { type: "object", properties: { ok: { type: "boolean" } } } } } } },
+        security: [{ APIKeyAuth: [] }]
+      }
+    },
+    "/utm-presets/{id}": {
+      delete: {
+        tags: ["utm-presets"],
+        description: "Delete a UTM preset",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+        responses: { "200": { description: "Deleted", content: { "application/json": { schema: { $ref: "#/components/schemas/inline_response_200_1" } } } } },
         security: [{ APIKeyAuth: [] }]
       }
     },
@@ -752,6 +831,32 @@ module.exports = {
               }
             }
           }
+        }
+      }
+    },
+      UtmPreset: {
+        type: "object",
+        properties: {
+          id: { type: "integer" },
+          name: { type: "string" },
+          utm_source: { type: "string" },
+          utm_medium: { type: "string" },
+          utm_campaign: { type: "string" },
+          utm_content: { type: "string" },
+          utm_term: { type: "string" },
+          created_at: { type: "string", format: "date-time" }
+        }
+      },
+      UtmPresetBody: {
+        type: "object",
+        required: ["name"],
+        properties: {
+          name: { type: "string", description: "Display name for the preset" },
+          utm_source: { type: "string", example: "instagram" },
+          utm_medium: { type: "string", example: "social" },
+          utm_campaign: { type: "string", example: "black-friday" },
+          utm_content: { type: "string", example: "bio" },
+          utm_term: { type: "string", example: "keyword" }
         }
       }
     },

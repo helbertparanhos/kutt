@@ -650,6 +650,19 @@ async function stats(req, res) {
   });
 };
 
+async function getOne(req, res) {
+  const link = await query.link.find({
+    uuid: req.params.id,
+    user_id: req.user.id,
+  });
+
+  if (!link) {
+    throw new CustomError("Link could not be found.", 404);
+  }
+
+  return res.status(200).send(utils.sanitize.link(link));
+};
+
 async function bulkCreate(req, res) {
   const items = req.body.links;
 
@@ -758,6 +771,7 @@ module.exports = {
   ban,
   bulkCreate,
   create,
+  getOne,
   edit,
   editAdmin,
   exportLinks,
