@@ -1703,14 +1703,13 @@ input.search.admin {
 /* DASHBOARD */
 
 .dashboard-page {
-  width: min(1200px, 96vw);
-  align-self: center;
-  padding: 32px 24px 48px;
+  width: 1200px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 28px;
   flex: 1 1 auto;
-  box-sizing: border-box;
+  gap: 28px;
+  padding: 32px 24px 48px;
 }
 
 .dash-topbar {
@@ -1774,40 +1773,42 @@ input.search.admin {
 .dash-card-header h2 { margin: 0; font-size: 1rem; font-weight: 700; }
 .dash-chart-wrap { padding: 16px 20px; }
 
-.dash-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
+.dash-table { width: 100%; }
+
 .dash-table th {
-  padding: 9px 14px;
-  text-align: left;
-  font-size: 0.75rem;
+  padding: 8px 14px;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--secondary-text-color);
   border-bottom: 1px solid var(--table-head-tr-border-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  align-items: center;
 }
 .dash-table td {
   padding: 11px 14px;
-  border-bottom: 1px solid var(--table-tr-border-color);
   font-size: 0.9rem;
-  vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  align-items: center;
 }
-.dash-table tr:last-child td { border-bottom: none; }
-.dash-table tr:hover td { background: var(--table-tr-hover-bg-color); }
+.dash-table tr { border-bottom: 1px solid var(--table-tr-border-color); }
+.dash-table thead tr { border-bottom: 2px solid var(--table-head-tr-border-color); }
+.dash-table tbody tr:last-child { border-bottom: none; }
+.dash-table tbody tr:hover td { background: var(--table-tr-hover-bg-color); }
+
+/* Top links table – flex column widths */
+.dash-top .col-rank  { flex: 0 0 36px; }
+.dash-top .col-slug  { flex: 2 2 0; min-width: 0; overflow: hidden; }
+.dash-top .col-dest  { flex: 5 5 0; min-width: 0; overflow: hidden; color: var(--secondary-text-color); font-size: 0.8rem; }
+.dash-top .col-clicks{ flex: 1.5 1.5 0; justify-content: flex-end; }
+.dash-top .col-action{ flex: 0 0 46px; justify-content: center; }
+
+/* Recently created – flex column widths */
+.dash-recent .col-slug  { flex: 3 3 0; min-width: 0; overflow: hidden; flex-direction: column; align-items: flex-start; justify-content: center; }
+.dash-recent .col-clicks{ flex: 1 1 0; justify-content: flex-end; }
+.dash-recent .col-action{ flex: 0 0 46px; justify-content: center; }
 
 .dash-rank { color: var(--secondary-text-color); font-size: 0.85rem; }
-.dash-target {
-  color: var(--secondary-text-color);
-  font-size: 0.78rem;
-}
+.dash-target { color: var(--secondary-text-color); font-size: 0.75rem; margin-top: 2px; }
+.dash-slug-sub { color: var(--secondary-text-color); font-size: 0.75rem; margin-top: 2px; }
 
 .button.small {
   padding: 4px 8px;
