@@ -23,7 +23,123 @@ document.body.addEventListener("htmx:configRequest", function(evt) {
   }
 });
 
-// UTM preview builder
+// ── UTM BUILDER ──────────────────────────────────────────────────────────────
+
+var _utmLoaded = false;
+var _utmData = { presets: [], campaign_history: [] };
+
+var UTM_CONTENT_SUGGESTIONS = {
+  instagram: ["bio", "feed-post", "stories-swipe", "reels", "link-sticker"],
+  stories:   ["stories-swipe", "link-sticker", "mention"],
+  reels:     ["reels", "description"],
+  youtube:   ["descricao", "pinned-comment", "end-card"],
+  email:     ["header", "botao-cta", "link-texto", "footer"],
+  google:    ["search-ad", "display-banner"],
+  whatsapp:  ["mensagem-direta", "grupo", "status"],
+};
+
+function loadUtmData() {
+  if (_utmLoaded) return;
+  _utmLoaded = true;
+  fetch("/api/v2/utm-presets", { credentials: "include" })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      _utmData = data;
+      renderUtmPresets(data.presets);
+    })
+    .catch(function() {});
+}
+
+function renderUtmPresets(presets) {
+  var container = document.getElementById("utm-presets-list");
+  if (!container) return;
+  if (!presets || !presets.length) {
+    container.innerHTML = "<span class='utm-hint'>No saved presets. <a href='/settings#utm-presets' target='_blank'>Create one</a>.</span>";
+    return;
+  }
+  container.innerHTML = presets.map(function(p) {
+    return "<button type='button' class='utm-channel-btn' onclick='applyPreset(" + JSON.stringify(p).replace(/'/g,"&#39;") + ")'>" + p.name + "</button>";
+  }).join("");
+}
+
+function applyPreset(preset) {
+  var fields = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"];
+  fields.forEach(function(f) {
+    var el = document.getElementById(f);
+    if (el) el.value = preset[f] || "";
+  });
+  // select matching channel button
+  var source = preset.utm_source || "";
+  var medium = preset.utm_medium || "";
+  document.querySelectorAll(".utm-channel-btn[data-source]").forEach(function(btn) {
+    btn.classList.toggle("active", btn.dataset.source === source && btn.dataset.medium === medium);
+  });
+  renderContentSuggestions(source);
+  updateUtmPreview();
+}
+
+function selectUtmChannel(btn) {
+  document.querySelectorAll(".utm-channel-btn[data-source]").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  var source = btn.dataset.source;
+  var medium = btn.dataset.medium;
+  var row = document.getElementById("utm-source-medium-row");
+  var srcEl = document.getElementById("utm_source");
+  var medEl = document.getElementById("utm_medium");
+  if (source === "" && medium === "") {
+    row.classList.remove("hidden");
+    if (srcEl) srcEl.value = "";
+    if (medEl) medEl.value = "";
+  } else {
+    row.classList.add("hidden");
+    if (srcEl) srcEl.value = source;
+    if (medEl) medEl.value = medium;
+  }
+  // show term block for Google CPC
+  var termBlock = document.getElementById("utm-term-block");
+  if (termBlock) termBlock.classList.toggle("hidden", !(source === "google" && medium === "cpc"));
+  renderContentSuggestions(source);
+  updateUtmPreview();
+}
+
+function renderContentSuggestions(source) {
+  var container = document.getElementById("utm-content-suggestions");
+  if (!container) return;
+  var suggestions = UTM_CONTENT_SUGGESTIONS[source] || [];
+  if (!suggestions.length) { container.innerHTML = ""; return; }
+  var current = (document.getElementById("utm_content") || {}).value || "";
+  container.innerHTML = suggestions.map(function(s) {
+    return "<button type='button' class='utm-channel-btn utm-content-chip" + (current === s ? " active" : "") + "' onclick='selectContentChip(this,\"" + s + "\")'>" + s + "</button>";
+  }).join("");
+}
+
+function selectContentChip(btn, value) {
+  document.querySelectorAll(".utm-content-chip").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  var el = document.getElementById("utm_content");
+  if (el) { el.value = value; updateUtmPreview(); }
+}
+
+function filterCampaignHistory(val) {
+  var history = document.getElementById("utm-campaign-history");
+  if (!history) return;
+  var items = (_utmData.campaign_history || []).filter(function(c) {
+    return !val || c.toLowerCase().includes(val.toLowerCase());
+  });
+  if (!items.length) { history.classList.add("hidden"); return; }
+  history.innerHTML = items.map(function(c) {
+    return "<div class='utm-campaign-item' onclick='selectCampaign(\"" + c.replace(/"/g,"&quot;") + "\")'>" + c + "</div>";
+  }).join("");
+  history.classList.remove("hidden");
+}
+
+function selectCampaign(value) {
+  var el = document.getElementById("utm_campaign");
+  if (el) { el.value = value; updateUtmPreview(); }
+  var history = document.getElementById("utm-campaign-history");
+  if (history) history.classList.add("hidden");
+}
+
 function buildUtmUrl() {
   var targetInput = document.getElementById("target");
   if (!targetInput) return "";
@@ -47,22 +163,49 @@ function updateUtmPreview() {
   var previewUrl = document.getElementById("utm-preview-url");
   if (!preview || !previewUrl) return;
   var url = buildUtmUrl();
-  if (!url) {
-    preview.classList.add("hidden");
-    return;
-  }
+  if (!url) { preview.classList.add("hidden"); return; }
   preview.classList.remove("hidden");
   previewUrl.textContent = url;
 }
 
 function clearUtmFields() {
   document.querySelectorAll("[data-utm]").forEach(function(i) { i.value = ""; });
+  document.querySelectorAll(".utm-channel-btn").forEach(function(b) { b.classList.remove("active"); });
+  var row = document.getElementById("utm-source-medium-row");
+  if (row) row.classList.add("hidden");
+  var termBlock = document.getElementById("utm-term-block");
+  if (termBlock) termBlock.classList.add("hidden");
+  var contentSugg = document.getElementById("utm-content-suggestions");
+  if (contentSugg) contentSugg.innerHTML = "";
   updateUtmPreview();
 }
 
-// update UTM preview when target URL changes
+// save campaign to history on shortener form submit
+document.addEventListener("htmx:afterRequest", function(evt) {
+  if (!evt.detail.elt || evt.detail.elt.id !== "shortener-form") return;
+  if (evt.detail.xhr && evt.detail.xhr.status >= 400) return;
+  var campaign = (document.getElementById("utm_campaign") || {}).value;
+  if (campaign && campaign.trim()) {
+    fetch("/api/v2/utm-presets/campaigns", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ campaign: campaign.trim() })
+    }).catch(function() {});
+  }
+});
+
+// update preview when target URL changes
 document.addEventListener("input", function(evt) {
   if (evt.target && evt.target.id === "target") updateUtmPreview();
+});
+
+// close campaign history on outside click
+document.addEventListener("click", function(evt) {
+  var history = document.getElementById("utm-campaign-history");
+  if (history && !history.contains(evt.target) && evt.target.id !== "utm_campaign") {
+    history.classList.add("hidden");
+  }
 });
 
 // redirect to homepage

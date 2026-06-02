@@ -140,43 +140,71 @@
         name="show_utm"
         type="checkbox"
         id="show_utm"
-        hx-on:change="htmx.toggleClass('#utm-options', 'hidden'); updateUtmPreview();"
-        {{#if show_utm}}checked="true"{{/if}}
+        hx-on:change="htmx.toggleClass('#utm-options', 'hidden'); if(!window._utmLoaded){loadUtmData();}"
       />
       Add UTM parameters
     </label>
-    <section id="utm-options" class="utm-section {{#unless show_utm}}hidden{{/unless}}">
-      <div class="advanced-input-wrapper">
-        <label>
-          Source:
-          <input type="text" id="utm_source" data-utm="utm_source" placeholder="instagram" oninput="updateUtmPreview()" autocomplete="off" />
-        </label>
-        <label>
-          Medium:
-          <input type="text" id="utm_medium" data-utm="utm_medium" placeholder="social" oninput="updateUtmPreview()" autocomplete="off" />
-        </label>
-        <label>
-          Campaign:
-          <input type="text" id="utm_campaign" data-utm="utm_campaign" placeholder="black-friday" oninput="updateUtmPreview()" autocomplete="off" />
-        </label>
+    <section id="utm-options" class="utm-section hidden">
+
+      {{!-- Channel presets --}}
+      <div class="utm-block">
+        <p class="utm-block-title">Channel <span class="utm-hint">(sets source + medium)</span></p>
+        <div class="utm-channels" id="utm-channels">
+          <button type="button" class="utm-channel-btn" data-source="instagram" data-medium="social"     onclick="selectUtmChannel(this)">📷 Instagram</button>
+          <button type="button" class="utm-channel-btn" data-source="instagram" data-medium="stories"    onclick="selectUtmChannel(this)">🎞 Stories</button>
+          <button type="button" class="utm-channel-btn" data-source="instagram" data-medium="reels"      onclick="selectUtmChannel(this)">🎬 Reels</button>
+          <button type="button" class="utm-channel-btn" data-source="youtube"   data-medium="social"     onclick="selectUtmChannel(this)">▶️ YouTube</button>
+          <button type="button" class="utm-channel-btn" data-source="whatsapp"  data-medium="social"     onclick="selectUtmChannel(this)">💬 WhatsApp</button>
+          <button type="button" class="utm-channel-btn" data-source="email"     data-medium="email"      onclick="selectUtmChannel(this)">✉️ E-mail</button>
+          <button type="button" class="utm-channel-btn" data-source="google"    data-medium="cpc"        onclick="selectUtmChannel(this)">🔍 Google Ads</button>
+          <button type="button" class="utm-channel-btn" data-source="google"    data-medium="organic"    onclick="selectUtmChannel(this)">🌱 Orgânico</button>
+          <button type="button" class="utm-channel-btn" data-source=""          data-medium=""           onclick="selectUtmChannel(this)">✏️ Outro</button>
+        </div>
+        <div id="utm-source-medium-row" class="utm-source-medium hidden">
+          <label>Source: <input type="text" id="utm_source" data-utm="utm_source" placeholder="fonte" oninput="updateUtmPreview()" autocomplete="off" /></label>
+          <label>Medium: <input type="text" id="utm_medium" data-utm="utm_medium" placeholder="midia" oninput="updateUtmPreview()" autocomplete="off" /></label>
+        </div>
       </div>
-      <div class="advanced-input-wrapper">
-        <label>
-          Content:
-          <input type="text" id="utm_content" data-utm="utm_content" placeholder="banner-top" oninput="updateUtmPreview()" autocomplete="off" />
-        </label>
-        <label>
-          Term:
-          <input type="text" id="utm_term" data-utm="utm_term" placeholder="keyword" oninput="updateUtmPreview()" autocomplete="off" />
-        </label>
-        <label class="utm-clear-label">
-          <button type="button" class="button utm-clear-btn" onclick="clearUtmFields()">Clear UTMs</button>
-        </label>
+
+      {{!-- Saved presets --}}
+      <div class="utm-block" id="utm-presets-block">
+        <p class="utm-block-title">Saved Presets <a class="nav utm-manage-link" href="/settings#utm-presets" target="_blank">Manage</a></p>
+        <div id="utm-presets-list" class="utm-presets-list">
+          <span class="utm-hint">Loading...</span>
+        </div>
       </div>
+
+      {{!-- Campaign --}}
+      <div class="utm-block">
+        <p class="utm-block-title">Campaign</p>
+        <div class="utm-campaign-row">
+          <input type="text" id="utm_campaign" data-utm="utm_campaign" placeholder="black-friday-2026" oninput="updateUtmPreview(); filterCampaignHistory(this.value)" autocomplete="off" class="utm-campaign-input" />
+          <div id="utm-campaign-history" class="utm-campaign-history hidden"></div>
+        </div>
+      </div>
+
+      {{!-- Content --}}
+      <div class="utm-block">
+        <p class="utm-block-title">Content <span class="utm-hint">(optional — differentiates creatives)</span></p>
+        <div id="utm-content-suggestions" class="utm-channels"></div>
+        <input type="text" id="utm_content" data-utm="utm_content" placeholder="ex: bio, feed-post, stories-swipe" oninput="updateUtmPreview()" autocomplete="off" class="utm-content-input" />
+      </div>
+
+      {{!-- Term (Google Ads only) --}}
+      <div class="utm-block hidden" id="utm-term-block">
+        <p class="utm-block-title">Term <span class="utm-hint">(keyword paga — Google Ads)</span></p>
+        <input type="text" id="utm_term" data-utm="utm_term" placeholder="palavra-chave" oninput="updateUtmPreview()" autocomplete="off" class="utm-content-input" />
+      </div>
+
+      {{!-- Preview + actions --}}
       <div id="utm-preview" class="utm-preview hidden">
         <span class="utm-preview-label">Preview:</span>
         <span id="utm-preview-url"></span>
       </div>
+      <div class="utm-footer">
+        <button type="button" class="button utm-clear-btn" onclick="clearUtmFields()">Clear UTMs</button>
+      </div>
+
     </section>
   </form>
 </main>

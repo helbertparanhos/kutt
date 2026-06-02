@@ -1,0 +1,82 @@
+<div id="utm-presets" class="content">
+  <h2 class="content-title">UTM Presets</h2>
+  <p class="content-description">Save combinations of UTM parameters to reuse when creating links.</p>
+
+  <div id="utm-presets-settings-list"
+    hx-get="/api/v2/utm-presets/settings-partial"
+    hx-trigger="load once"
+    hx-swap="innerHTML"
+  >
+    <div class="loading-inline">{{> icons/spinner}} Loading presets...</div>
+  </div>
+
+  <form id="utm-preset-form" class="utm-preset-form" onsubmit="submitUtmPreset(event)">
+    <h3>New Preset</h3>
+    <div class="advanced-input-wrapper">
+      <label>
+        Name *
+        <input type="text" id="preset-name" placeholder="Instagram Bio" required autocomplete="off" />
+      </label>
+      <label>
+        Source
+        <input type="text" id="preset-source" placeholder="instagram" autocomplete="off" />
+      </label>
+      <label>
+        Medium
+        <input type="text" id="preset-medium" placeholder="social" autocomplete="off" />
+      </label>
+    </div>
+    <div class="advanced-input-wrapper">
+      <label>
+        Campaign
+        <input type="text" id="preset-campaign" placeholder="(optional)" autocomplete="off" />
+      </label>
+      <label>
+        Content
+        <input type="text" id="preset-content" placeholder="bio" autocomplete="off" />
+      </label>
+      <label>
+        Term
+        <input type="text" id="preset-term" placeholder="(optional)" autocomplete="off" />
+      </label>
+    </div>
+    <div id="utm-preset-error" class="error-msg hidden"></div>
+    <button type="submit" class="button primary">Save Preset</button>
+  </form>
+</div>
+
+<script>
+function submitUtmPreset(evt) {
+  evt.preventDefault();
+  var name = document.getElementById("preset-name").value.trim();
+  var errEl = document.getElementById("utm-preset-error");
+  if (!name) { errEl.textContent = "Name is required."; errEl.classList.remove("hidden"); return; }
+  errEl.classList.add("hidden");
+  fetch("/api/v2/utm-presets", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name,
+      utm_source: document.getElementById("preset-source").value.trim(),
+      utm_medium: document.getElementById("preset-medium").value.trim(),
+      utm_campaign: document.getElementById("preset-campaign").value.trim(),
+      utm_content: document.getElementById("preset-content").value.trim(),
+      utm_term: document.getElementById("preset-term").value.trim(),
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) { errEl.textContent = data.error; errEl.classList.remove("hidden"); return; }
+    document.getElementById("utm-preset-form").reset();
+    htmx.trigger("#utm-presets-settings-list", "load");
+  })
+  .catch(function() { errEl.textContent = "Error saving preset."; errEl.classList.remove("hidden"); });
+}
+
+function deleteUtmPreset(id) {
+  if (!confirm("Delete this preset?")) return;
+  fetch("/api/v2/utm-presets/" + id, { method: "DELETE", credentials: "include" })
+    .then(function() { htmx.trigger("#utm-presets-settings-list", "load"); });
+}
+</script>

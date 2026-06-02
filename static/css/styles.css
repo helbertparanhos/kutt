@@ -1704,13 +1704,122 @@ input.search.admin {
 
 #utm-toggle { margin-top: 0.5rem; }
 
-.utm-section { margin-top: 0.25rem; }
+.utm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 0.5rem;
+  padding: 16px;
+  background: var(--table-bg-color);
+  border-radius: 10px;
+}
+
+.utm-block { display: flex; flex-direction: column; gap: 8px; }
+
+.utm-block-title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--secondary-text-color);
+}
+.utm-hint { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 0.78rem; }
+
+.utm-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.utm-channel-btn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid hsl(200, 20%, 85%);
+  background: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: border-color 0.15s, background 0.15s;
+  font-family: inherit;
+}
+.utm-channel-btn:hover { border-color: var(--color-primary); }
+.utm-channel-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.utm-source-medium {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+.utm-source-medium label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--secondary-text-color);
+  flex: 1;
+}
+.utm-source-medium input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid hsl(200, 20%, 85%);
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: white;
+}
+
+.utm-presets-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.utm-campaign-row { position: relative; }
+.utm-campaign-input, .utm-content-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid hsl(200, 20%, 85%);
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: white;
+  box-sizing: border-box;
+}
+.utm-campaign-input:focus, .utm-content-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.utm-campaign-history {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid hsl(200, 20%, 85%);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px hsla(200,20%,50%,0.15);
+  z-index: 100;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.utm-campaign-item {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid hsl(200, 20%, 94%);
+}
+.utm-campaign-item:last-child { border-bottom: none; }
+.utm-campaign-item:hover { background: var(--table-tr-hover-bg-color); }
 
 .utm-preview {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin-top: 0.75rem;
   padding: 10px 14px;
   background: var(--copy-icon-bg-color);
   border-radius: 8px;
@@ -1722,7 +1831,7 @@ input.search.admin {
   white-space: nowrap;
   color: var(--secondary-text-color);
   font-size: 0.75rem;
-  padding-top: 1px;
+  padding-top: 2px;
 }
 #utm-preview-url {
   color: var(--text-color);
@@ -1730,14 +1839,26 @@ input.search.admin {
   font-size: 0.78rem;
 }
 
-.utm-clear-label {
-  justify-content: flex-end;
-  align-items: flex-end;
+.utm-footer { display: flex; justify-content: flex-end; }
+.utm-clear-btn { font-size: 0.8rem; padding: 6px 14px; }
+.utm-manage-link { margin-left: 8px; font-size: 0.78rem; }
+
+/* Settings UTM Presets */
+.utm-preset-form { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.utm-preset-form h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.utm-presets-settings { display: flex; flex-direction: column; gap: 8px; }
+.utm-preset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--table-bg-color);
+  border-radius: 8px;
+  gap: 12px;
 }
-.utm-clear-btn {
-  font-size: 0.8rem;
-  padding: 6px 14px;
-}
+.utm-preset-info { display: flex; flex-direction: column; gap: 2px; font-size: 0.9rem; }
+.error-msg { color: var(--error-icon-color); font-size: 0.85rem; }
+.loading-inline { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--secondary-text-color); }
 
 /* DASHBOARD */
 
