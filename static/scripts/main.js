@@ -4,6 +4,65 @@
 // add text/html accept header to receive html instead of json for the requests
 document.body.addEventListener("htmx:configRequest", function(evt) {
   evt.detail.headers["Accept"] = "text/html,*/*";
+
+  // merge UTM params into target URL on shortener form submit
+  if (evt.detail.elt && evt.detail.elt.id === "shortener-form") {
+    var utmInputs = document.querySelectorAll("[data-utm]");
+    var hasUtm = Array.from(utmInputs).some(function(i) { return i.value.trim(); });
+    if (hasUtm && evt.detail.parameters.target) {
+      try {
+        var raw = evt.detail.parameters.target.trim();
+        var base = /^https?:\/\//i.test(raw) ? raw : "https://" + raw;
+        var url = new URL(base);
+        utmInputs.forEach(function(input) {
+          if (input.value.trim()) url.searchParams.set(input.dataset.utm, input.value.trim());
+        });
+        evt.detail.parameters.target = url.toString();
+      } catch(e) {}
+    }
+  }
+});
+
+// UTM preview builder
+function buildUtmUrl() {
+  var targetInput = document.getElementById("target");
+  if (!targetInput) return "";
+  var raw = targetInput.value.trim();
+  if (!raw) return "";
+  var utmInputs = document.querySelectorAll("[data-utm]");
+  var hasUtm = Array.from(utmInputs).some(function(i) { return i.value.trim(); });
+  if (!hasUtm) return "";
+  try {
+    var base = /^https?:\/\//i.test(raw) ? raw : "https://" + raw;
+    var url = new URL(base);
+    utmInputs.forEach(function(input) {
+      if (input.value.trim()) url.searchParams.set(input.dataset.utm, input.value.trim());
+    });
+    return url.toString();
+  } catch(e) { return ""; }
+}
+
+function updateUtmPreview() {
+  var preview = document.getElementById("utm-preview");
+  var previewUrl = document.getElementById("utm-preview-url");
+  if (!preview || !previewUrl) return;
+  var url = buildUtmUrl();
+  if (!url) {
+    preview.classList.add("hidden");
+    return;
+  }
+  preview.classList.remove("hidden");
+  previewUrl.textContent = url;
+}
+
+function clearUtmFields() {
+  document.querySelectorAll("[data-utm]").forEach(function(i) { i.value = ""; });
+  updateUtmPreview();
+}
+
+// update UTM preview when target URL changes
+document.addEventListener("input", function(evt) {
+  if (evt.target && evt.target.id === "target") updateUtmPreview();
 });
 
 // redirect to homepage

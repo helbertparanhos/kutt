@@ -1700,6 +1700,45 @@ input.search.admin {
 .content.admin-create .buttons { justify-content: center; }
 .content.admin-create .buttons button { flex: 1 1 auto; }
 
+/* UTM BUILDER */
+
+#utm-toggle { margin-top: 0.5rem; }
+
+.utm-section { margin-top: 0.25rem; }
+
+.utm-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 0.75rem;
+  padding: 10px 14px;
+  background: var(--copy-icon-bg-color);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+.utm-preview-label {
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--secondary-text-color);
+  font-size: 0.75rem;
+  padding-top: 1px;
+}
+#utm-preview-url {
+  color: var(--text-color);
+  font-family: monospace;
+  font-size: 0.78rem;
+}
+
+.utm-clear-label {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+.utm-clear-btn {
+  font-size: 0.8rem;
+  padding: 6px 14px;
+}
+
 /* DASHBOARD */
 
 .dashboard-page {

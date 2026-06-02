@@ -112,26 +112,70 @@
       <div class="advanced-input-wrapper">
         <label class="expire-in {{#if errors.expire_in}}error{{/if}}">
           Expire in:
-          <input 
-            type="text" 
-            id="expire_in" 
-            name="expire_in" 
-            placeholder="2 minutes/hours/days" 
-            hx-preserve="true" 
+          <input
+            type="text"
+            id="expire_in"
+            name="expire_in"
+            placeholder="2 minutes/hours/days"
+            hx-preserve="true"
           />
           {{#if errors.expire_in}}<p class="error">{{errors.expire_in}}</p>{{/if}}
         </label>
         <label class="description {{#if errors.description}}error{{/if}}">
           Description:
-          <input 
-            type="text" 
-            id="description" 
-            name="description" 
-            placeholder="Description..." 
-            hx-preserve="true" 
+          <input
+            type="text"
+            id="description"
+            name="description"
+            placeholder="Description..."
+            hx-preserve="true"
           />
           {{#if errors.description}}<p class="error">{{errors.description}}</p>{{/if}}
         </label>
+      </div>
+    </section>
+
+    <label id="utm-toggle" class="checkbox">
+      <input
+        name="show_utm"
+        type="checkbox"
+        id="show_utm"
+        hx-on:change="htmx.toggleClass('#utm-options', 'hidden'); updateUtmPreview();"
+        {{#if show_utm}}checked="true"{{/if}}
+      />
+      Add UTM parameters
+    </label>
+    <section id="utm-options" class="utm-section {{#unless show_utm}}hidden{{/unless}}">
+      <div class="advanced-input-wrapper">
+        <label>
+          Source:
+          <input type="text" id="utm_source" data-utm="utm_source" placeholder="instagram" oninput="updateUtmPreview()" autocomplete="off" />
+        </label>
+        <label>
+          Medium:
+          <input type="text" id="utm_medium" data-utm="utm_medium" placeholder="social" oninput="updateUtmPreview()" autocomplete="off" />
+        </label>
+        <label>
+          Campaign:
+          <input type="text" id="utm_campaign" data-utm="utm_campaign" placeholder="black-friday" oninput="updateUtmPreview()" autocomplete="off" />
+        </label>
+      </div>
+      <div class="advanced-input-wrapper">
+        <label>
+          Content:
+          <input type="text" id="utm_content" data-utm="utm_content" placeholder="banner-top" oninput="updateUtmPreview()" autocomplete="off" />
+        </label>
+        <label>
+          Term:
+          <input type="text" id="utm_term" data-utm="utm_term" placeholder="keyword" oninput="updateUtmPreview()" autocomplete="off" />
+        </label>
+        <label class="utm-clear-label">
+          <button type="button" class="button utm-clear-btn" onclick="clearUtmFields()">Clear UTMs</button>
+        </label>
+      </div>
+      <div id="utm-preview" class="utm-preview hidden">
+        <span class="utm-preview-label">Preview:</span>
+        <span id="utm-preview-url"></span>
       </div>
     </section>
   </form>
