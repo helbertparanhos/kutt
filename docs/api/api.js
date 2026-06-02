@@ -832,8 +832,7 @@ module.exports = {
             }
           }
         }
-      }
-    },
+      },
       UtmPreset: {
         type: "object",
         properties: {
