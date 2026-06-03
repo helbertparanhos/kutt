@@ -44,6 +44,51 @@
   --keyframe-slidey-offset: 0;
 }
 
+/* DARK MODE */
+[data-theme="dark"] {
+  --bg-color: hsl(220, 15%, 13%);
+  --text-color: hsl(210, 20%, 88%);
+  --color-primary: hsl(207, 90%, 65%);
+  --outline-color: hsl(207, 90%, 65%);
+  --secondary-text-color: hsl(210, 15%, 55%);
+  --underline-color: hsl(210, 15%, 40%);
+  --input-label-color: hsl(210, 20%, 80%);
+  --table-bg-color: hsl(220, 15%, 17%);
+  --table-shadow-color: hsla(220, 30%, 5%, 0.4);
+  --table-tr-border-color: hsl(220, 15%, 22%);
+  --table-tr-hover-bg-color: hsl(220, 15%, 20%);
+  --table-head-tr-border-color: hsl(220, 15%, 25%);
+  --table-status-gray-bg-color: hsl(220, 15%, 20%);
+  --input-shadow-color: hsla(220, 30%, 5%, 0.3);
+  --input-hover-shadow-color: hsla(207, 90%, 65%, 0.3);
+  --copy-icon-bg-color: hsl(220, 15%, 20%);
+  --copy-icon-shadow-color: hsla(220, 30%, 5%, 0.3);
+  --button-bg: linear-gradient(to right, hsl(220,15%,22%), hsl(220,15%,28%));
+  --button-bg-box-shadow-color: rgba(0, 0, 0, 0.4);
+  --button-action-shadow-color: hsla(220, 30%, 5%, 0.2);
+}
+[data-theme="dark"] body { background-color: var(--bg-color); color: var(--text-color); }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea {
+  background-color: hsl(220, 15%, 18%);
+  color: var(--text-color);
+  border-color: hsl(220, 15%, 28%);
+}
+[data-theme="dark"] .dash-card, [data-theme="dark"] .stat-card, [data-theme="dark"] .dash-kpi {
+  background-color: hsl(220, 15%, 17%);
+}
+[data-theme="dark"] hr { background-color: hsl(220, 15%, 22%); }
+[data-theme="dark"] table { background-color: hsl(220, 15%, 17%); }
+
+.dark-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+  line-height: 1;
+}
+.dark-icon-sun, .dark-icon-moon { pointer-events: none; }
+
 /* ANIMATIONS */
 @keyframes spin {
   from { transform: rotate(0deg); }
@@ -1002,7 +1047,131 @@ table .tab a:not(.active):hover {
 .htmx-spinner.htmx-request button svg { display: none; }
 .htmx-spinner.htmx-request .spinner { display: block; }
 
-/* LOGIN & SIGNUP */
+/* LOGIN PAGE */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, hsl(215, 50%, 20%) 0%, hsl(250, 50%, 25%) 100%);
+}
+
+.login-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  background: white;
+  border-radius: 20px;
+  padding: 48px 44px;
+  width: 420px;
+  max-width: 100%;
+  box-shadow: 0 24px 64px hsla(220, 40%, 10%, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+[data-theme="dark"] .login-card {
+  background: hsl(220, 15%, 17%);
+  box-shadow: 0 24px 64px hsla(220, 40%, 5%, 0.6);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.login-brand span {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-color);
+}
+
+.login-tagline {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  margin: 0 0 28px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.login-field span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--secondary-text-color);
+}
+.login-field input {
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1.5px solid hsl(200, 20%, 88%);
+  font-size: 1rem;
+  font-family: inherit;
+  background: hsl(210, 30%, 98%);
+  color: var(--text-color);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.login-field input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--focus-outline-color);
+}
+[data-theme="dark"] .login-field input {
+  background: hsl(220, 15%, 22%);
+  border-color: hsl(220, 15%, 30%);
+}
+
+.login-forgot {
+  font-size: 0.8rem;
+  color: var(--secondary-text-color);
+  margin-bottom: 20px;
+  align-self: flex-end;
+  display: block;
+  text-align: right;
+}
+.login-forgot:hover { color: var(--color-primary); }
+
+.login-btn {
+  width: 100%;
+  height: 52px;
+  font-size: 1rem;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-error {
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* spinner inside login form */
+form#login-signup svg.spinner { display: none; }
+form#login-signup.htmx-request:not(.signup) .login svg { display: none; }
+form#login-signup.htmx-request:not(.signup) .login svg.spinner { display: block; }
+form#login-signup.htmx-request.signup .signup svg { display: none; }
+form#login-signup.htmx-request.signup .signup svg.spinner { display: block; }
+form#login-signup.htmx-request .error { opacity: 0; }
+
+/* LEGACY LOGIN & SIGNUP (kept for fallback) */
 
 form#login-signup {
   width: 420px;
@@ -1977,6 +2146,49 @@ input.search.admin {
   display: inline-flex;
   align-items: center;
 }
+
+/* STATS MODAL */
+
+.stats-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: hsla(220, 30%, 10%, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+}
+
+.stats-modal-card {
+  background: var(--bg-color);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1100px;
+  padding: 32px;
+  position: relative;
+  box-shadow: 0 32px 80px hsla(220, 40%, 5%, 0.5);
+  animation: fadein 0.2s ease-out;
+}
+
+.stats-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  color: var(--secondary-text-color);
+  transition: background 0.15s;
+}
+.stats-modal-close:hover { background: var(--table-bg-color); }
+.stats-modal-close svg { width: 20px; height: 20px; }
 
 /* FOOTER */
 

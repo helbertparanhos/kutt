@@ -1,3 +1,26 @@
+// dark mode
+(function () {
+  var t = localStorage.getItem("kutt-theme");
+  if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  var moon = document.querySelector(".dark-icon-moon");
+  var sun = document.querySelector(".dark-icon-sun");
+  if (t === "dark" && moon && sun) { moon.classList.add("hidden"); sun.classList.remove("hidden"); }
+})();
+
+function toggleDarkMode() {
+  var root = document.documentElement;
+  var isDark = root.getAttribute("data-theme") === "dark";
+  var next = isDark ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("kutt-theme", next);
+  var moon = document.querySelector(".dark-icon-moon");
+  var sun = document.querySelector(".dark-icon-sun");
+  if (moon && sun) {
+    moon.classList.toggle("hidden", next === "dark");
+    sun.classList.toggle("hidden", next === "light");
+  }
+}
+
 // log htmx on dev
 // htmx.logAll();
 

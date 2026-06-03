@@ -57,7 +57,7 @@
             <td class="col-dest">{{target}}</td>
             <td class="col-clicks"><strong>{{visit_count}}</strong></td>
             <td class="col-action">
-              <a class="button small" href="/stats?id={{id}}" title="Stats">{{> icons/chart}}</a>
+              <button type="button" class="button small" onclick="openStatsModal('{{id}}')" title="Ver stats">{{> icons/chart}}</button>
             </td>
           </tr>
           {{/each}}
@@ -87,7 +87,7 @@
             </td>
             <td class="col-clicks">{{visit_count}}</td>
             <td class="col-action">
-              <a class="button small" href="/stats?id={{id}}" title="Stats">{{> icons/chart}}</a>
+              <button type="button" class="button small" onclick="openStatsModal('{{id}}')" title="Ver stats">{{> icons/chart}}</button>
             </td>
           </tr>
           {{/each}}
@@ -98,10 +98,22 @@
   </div>
 
 </section>
+
+{{!-- Stats Modal --}}
+<div id="stats-modal-overlay" class="stats-modal-overlay hidden" onclick="closeStatsModal(event)">
+  <div class="stats-modal-card">
+    <button type="button" class="stats-modal-close" onclick="closeStatsModal()" aria-label="Close">{{> icons/x}}</button>
+    <div id="stats-modal-content">
+      <div class="loading-stats">{{> icons/spinner}} Loading stats...</div>
+    </div>
+  </div>
+</div>
+
 {{> footer}}
 
 {{#extend "scripts"}}
 <script src="/libs/chart.min.js"></script>
+<script src="/scripts/stats.js"></script>
 <script>
 (function () {
   var data = {{{top_links_json}}};
@@ -135,5 +147,27 @@
     }
   });
 }());
+
+function openStatsModal(linkId) {
+  var overlay = document.getElementById("stats-modal-overlay");
+  var content = document.getElementById("stats-modal-content");
+  content.innerHTML = "<div class='loading-stats'>{{> icons/spinner}} Loading stats...</div>";
+  overlay.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  htmx.ajax("GET", "/api/links/" + linkId + "/stats", {
+    target: "#stats-modal-content",
+    swap: "innerHTML",
+  }).then(function() {
+    trimText(".stats-info p", 80);
+    formatDateHour("#stats .last-update-value");
+    createCharts();
+  });
+}
+
+function closeStatsModal(evt) {
+  if (evt && evt.target !== document.getElementById("stats-modal-overlay") && !evt.target.closest(".stats-modal-close")) return;
+  document.getElementById("stats-modal-overlay").classList.add("hidden");
+  document.body.style.overflow = "";
+}
 </script>
 {{/extend}}

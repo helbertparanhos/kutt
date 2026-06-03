@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{site_name}} | Login</title>
+  <link rel="icon" sizes="32x32" href="/images/favicon-32x32.png" />
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="htmx-config" content='{"withCredentials":true}'>
+</head>
+<body class="login-page">
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="/images/logo.png" alt="{{site_name}}" width="32" height="40" />
+        <span>{{site_name}}</span>
+      </div>
+      <p class="login-tagline">Encurte. Rastreie. Conecte.</p>
+
+      {{#if login_disabled}}
+        {{> auth/login_disabled}}
+      {{else}}
+        <form id="login-signup" hx-post="/api/auth/login" hx-swap="outerHTML">
+          {{#unless disallow_login_form}}
+            <label class="login-field {{#if errors.email}}error{{/if}}">
+              <span>Email</span>
+              <input
+                name="email"
+                id="email"
+                type="email"
+                autofocus="true"
+                placeholder="seu@email.com"
+                hx-preserve="true"
+                autocomplete="email"
+              />
+              {{#if errors.email}}<p class="error">{{errors.email}}</p>{{/if}}
+            </label>
+            <label class="login-field {{#if errors.password}}error{{/if}}">
+              <span>Senha</span>
+              <input
+                name="password"
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                hx-preserve="true"
+                autocomplete="current-password"
+              />
+              {{#if errors.password}}<p class="error">{{errors.password}}</p>{{/if}}
+            </label>
+            {{#if mail_enabled}}
+              <a class="login-forgot" href="/reset-password">Esqueceu a senha?</a>
+            {{/if}}
+            <button type="submit" class="button primary login-btn">
+              <span>{{> icons/login}}</span>
+              <span>{{> icons/spinner}}</span>
+              Entrar
+            </button>
+          {{/unless}}
+
+          {{#if oidc_enabled}}
+            <a class="button secondary login-btn" href="/login/oidc">
+              <span>{{> icons/key}}</span>
+              Login com SSO
+            </a>
+          {{/if}}
+
+          {{#unless errors}}
+            {{#if error}}
+              <p class="error login-error">{{error}}</p>
+            {{/if}}
+          {{/unless}}
+        </form>
+      {{/if}}
+    </div>
+  </div>
+  <script src="/libs/htmx.min.js"></script>
+  <script src="/scripts/main.js"></script>
+  <script>
+    document.body.addEventListener("htmx:configRequest", function(evt) {
+      evt.detail.headers["Accept"] = "text/html,*/*";
+    });
+    // apply saved theme
+    (function(){
+      var t = localStorage.getItem("kutt-theme");
+      if (t === "dark") document.getElementById("html-root").setAttribute("data-theme","dark");
+    })();
+  </script>
+</body>
+</html>

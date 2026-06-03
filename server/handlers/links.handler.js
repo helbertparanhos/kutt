@@ -478,8 +478,9 @@ async function redirect(req, res, next) {
   });
 
   // 3. When no link, if has domain redirect to domain's homepage
-  // otherwise redirect to 404
+  // otherwise redirect to custom 404 URL or /404
   if (!link) {
+    if (env.CUSTOM_404_URL) return res.redirect(env.CUSTOM_404_URL);
     return res.redirect(domain?.homepage || "/404");
   }
 
