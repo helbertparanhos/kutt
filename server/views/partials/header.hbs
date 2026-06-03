@@ -7,24 +7,18 @@
   </div>
   <nav>
     <ul>
+      <li>
+        <button type="button" class="nav dark-toggle" id="dark-mode-toggle" onclick="toggleDarkMode()" title="Alternar tema" aria-label="Toggle dark mode">
+          <span class="dark-icon-moon">🌙</span>
+          <span class="dark-icon-sun hidden">☀️</span>
+        </button>
+      </li>
       {{#if user}}
         <li>
-          <a class="button primary" href="/dashboard" title="Dashboard">
-            <span>{{> icons/chart}}</span>
-            Dashboard
-          </a>
+          <a class="nav" href="/logout" title="Log out">Log out</a>
         </li>
         <li>
-          <a class="button primary" href="/" title="Criar link">
-            <span>{{> icons/plus}}</span>
-            Criar Link
-          </a>
-        </li>
-        <li>
-          <a class="button primary" href="/settings" title="Settings">
-            <span>{{> icons/cog}}</span>
-            Settings
-          </a>
+          <a class="button" href="/api/docs" target="_blank" rel="noopener noreferrer" title="API Docs">Docs</a>
         </li>
         {{#if isAdmin}}
           <li>
@@ -35,27 +29,31 @@
           </li>
         {{/if}}
         <li>
-          <a class="button" href="/api/docs" target="_blank" rel="noopener noreferrer" title="API Docs">
-            Docs
+          <a class="button primary" href="/settings" title="Settings">
+            <span>{{> icons/cog}}</span>
+            Settings
           </a>
         </li>
         <li>
-          <a class="nav" href="/logout" title="Log out">Log out</a>
+          <a class="button primary" href="/" title="Criar link">
+            <span>{{> icons/plus}}</span>
+            Criar Link
+          </a>
+        </li>
+        <li>
+          <a class="button primary" href="/dashboard" title="Dashboard">
+            <span>{{> icons/chart}}</span>
+            Dashboard
+          </a>
         </li>
       {{/if}}
       {{#unless user}}
-        {{#unless login_disabled}}
-          <li>
+        <li>
+          {{#unless login_disabled}}
             <a class="button primary" href="/login" title="Log in">Log in</a>
-          </li>
-        {{/unless}}
+          {{/unless}}
+        </li>
       {{/unless}}
-      <li>
-        <button type="button" class="nav dark-toggle" id="dark-mode-toggle" onclick="toggleDarkMode()" title="Alternar tema" aria-label="Toggle dark mode">
-          <span class="dark-icon-moon">🌙</span>
-          <span class="dark-icon-sun hidden">☀️</span>
-        </button>
-      </li>
     </ul>
   </nav>
 </header>

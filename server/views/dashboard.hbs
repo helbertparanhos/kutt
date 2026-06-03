@@ -100,11 +100,11 @@
 </section>
 
 {{!-- Stats Modal --}}
-<div id="stats-modal-overlay" class="stats-modal-overlay hidden" onclick="closeStatsModal(event)">
+<div id="stats-modal-overlay" class="stats-modal-overlay hidden">
   <div class="stats-modal-card">
-    <button type="button" class="stats-modal-close" onclick="closeStatsModal()" aria-label="Close">{{> icons/x}}</button>
+    <button type="button" class="stats-modal-close" id="stats-modal-close-btn" aria-label="Close">✕</button>
     <div id="stats-modal-content">
-      <div class="loading-stats">{{> icons/spinner}} Loading stats...</div>
+      <div class="loading-stats">Loading stats...</div>
     </div>
   </div>
 </div>
@@ -151,23 +151,31 @@
 function openStatsModal(linkId) {
   var overlay = document.getElementById("stats-modal-overlay");
   var content = document.getElementById("stats-modal-content");
-  content.innerHTML = "<div class='loading-stats'>{{> icons/spinner}} Loading stats...</div>";
+  content.innerHTML = "<div class='loading-stats'>Loading stats...</div>";
   overlay.classList.remove("hidden");
   document.body.style.overflow = "hidden";
   htmx.ajax("GET", "/api/links/" + linkId + "/stats", {
     target: "#stats-modal-content",
     swap: "innerHTML",
   }).then(function() {
-    trimText(".stats-info p", 80);
-    formatDateHour("#stats .last-update-value");
-    createCharts();
+    if (typeof trimText === "function") trimText(".stats-info p", 80);
+    if (typeof formatDateHour === "function") formatDateHour("#stats .last-update-value");
+    if (typeof createCharts === "function") createCharts();
   });
 }
 
-function closeStatsModal(evt) {
-  if (evt && evt.target !== document.getElementById("stats-modal-overlay") && !evt.target.closest(".stats-modal-close")) return;
+function closeStatsModal() {
   document.getElementById("stats-modal-overlay").classList.add("hidden");
   document.body.style.overflow = "";
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  var overlay = document.getElementById("stats-modal-overlay");
+  var closeBtn = document.getElementById("stats-modal-close-btn");
+  if (overlay) overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) closeStatsModal();
+  });
+  if (closeBtn) closeBtn.addEventListener("click", closeStatsModal);
+});
 </script>
 {{/extend}}
